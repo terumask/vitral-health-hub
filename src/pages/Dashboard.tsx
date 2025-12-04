@@ -106,7 +106,7 @@ export default function Dashboard() {
             />
             <MetricCard
               title="Resting Heart Rate"
-              value={metrics.resting_heart_rate ?? '-'}
+              value={metrics.resting_hr ?? '-'}
               unit="bpm"
               icon={<Heart className="w-5 h-5" />}
               color="heart"
