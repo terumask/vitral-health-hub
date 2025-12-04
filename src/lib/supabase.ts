@@ -9,7 +9,7 @@ export interface DailyMetrics {
   id: string;
   date: string;
   sleep_hours: number;
-  resting_heart_rate: number;
+  resting_hr: number;
   stress_level: number;
   steps: number;
   body_battery: number;
@@ -36,7 +36,7 @@ export async function getLatestMetrics(): Promise<DailyMetrics | null> {
 export function calculateHealthScore(metrics: DailyMetrics): number {
   // Handle null/undefined values with defaults
   const sleepHours = metrics.sleep_hours ?? 0;
-  const restingHR = metrics.resting_heart_rate ?? 60;
+  const restingHR = metrics.resting_hr ?? 60;
   const stressLevel = metrics.stress_level ?? 50;
   const steps = metrics.steps ?? 0;
   const bodyBattery = metrics.body_battery ?? 50;
