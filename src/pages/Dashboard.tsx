@@ -100,7 +100,7 @@ export default function Dashboard() {
           >
             Métricas del día
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             {/* Sleep Score */}
             <MetricCardSimple
               label="Puntuación sueño"
@@ -186,7 +186,7 @@ export default function Dashboard() {
           >
             Métricas avanzadas
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {/* HRV */}
             <MetricCardSimple
               label="Variabilidad cardíaca (HRV)"
