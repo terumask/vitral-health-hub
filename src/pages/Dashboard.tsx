@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Moon, Heart, Footprints, Brain, Flame, Dumbbell } from 'lucide-react';
+import { Moon, Heart, Footprints, Brain, Flame, Dumbbell, Activity, Wind } from 'lucide-react';
 import {
   getLast30DaysMetrics,
   calculateAverage,
@@ -65,11 +65,14 @@ export default function Dashboard() {
   // Calculate averages
   const avgHealthScore = calculateAverage(metrics30, 'health_score');
   const avgSleepScore = calculateAverage(metrics30, 'sleep_score');
+  const avgSleepHours = calculateAverage(metrics30, 'sleep_hours');
   const avgRestingHr = calculateAverage(metrics30, 'resting_hr');
   const avgSteps = calculateAverage(metrics30, 'steps');
   const avgStress = calculateAverage(metrics30, 'stress_level');
   const avgMvpa = calculateAverage(metrics30, 'mvpa_minutes');
   const avgTrainingLoad = calculateAverage(metrics30, 'training_load');
+  const avgHrv = calculateAverage(metrics30, 'hrv');
+  const avgVo2max = calculateAverage(metrics30, 'vo2max');
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -90,7 +93,7 @@ export default function Dashboard() {
         </section>
 
         {/* Metrics Grid */}
-        <section>
+        <section className="mb-10">
           <h2
             className="text-lg font-semibold text-foreground mb-4 animate-fade-in"
             style={{ animationDelay: '200ms' }}
@@ -107,6 +110,7 @@ export default function Dashboard() {
               icon={<Moon className="w-5 h-5" />}
               color="sleep"
               delay={300}
+              subtitle={latest.sleep_hours !== null ? `Horas de hoy: ${formatNumber(latest.sleep_hours, 1)} h` : undefined}
             />
 
             {/* Resting HR */}
@@ -164,8 +168,41 @@ export default function Dashboard() {
           </div>
         </section>
 
+        {/* Advanced Metrics Section */}
+        <section className="mb-10">
+          <h2
+            className="text-lg font-semibold text-foreground mb-4 animate-fade-in"
+            style={{ animationDelay: '850ms' }}
+          >
+            Métricas avanzadas
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* HRV */}
+            <MetricCardSimple
+              label="Variabilidad cardíaca (HRV)"
+              value={formatNumber(latest.hrv, 0)}
+              unit="ms"
+              average30={`${formatNumber(avgHrv, 0)} ms`}
+              icon={<Activity className="w-5 h-5" />}
+              color="hrv"
+              delay={900}
+            />
+
+            {/* VO2 Max */}
+            <MetricCardSimple
+              label="VO₂ máx"
+              value={formatNumber(latest.vo2max, 1)}
+              unit="ml/kg/min"
+              average30={`${formatNumber(avgVo2max, 1)} ml/kg/min`}
+              icon={<Wind className="w-5 h-5" />}
+              color="vo2"
+              delay={1000}
+            />
+          </div>
+        </section>
+
         {/* Footer */}
-        <footer className="mt-16 text-center animate-fade-in" style={{ animationDelay: '900ms' }}>
+        <footer className="mt-16 text-center animate-fade-in" style={{ animationDelay: '1100ms' }}>
           <p className="text-xs text-muted-foreground">
             Datos sincronizados desde tu dispositivo wearable
           </p>
