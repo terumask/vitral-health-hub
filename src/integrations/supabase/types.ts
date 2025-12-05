@@ -19,6 +19,7 @@ export type Database = {
           body_battery: number | null
           created_at: string | null
           date: string
+          has_garmin_data: boolean | null
           health_score: number | null
           hrv: number | null
           id: number
@@ -38,6 +39,7 @@ export type Database = {
           body_battery?: number | null
           created_at?: string | null
           date: string
+          has_garmin_data?: boolean | null
           health_score?: number | null
           hrv?: number | null
           id?: number
@@ -57,6 +59,7 @@ export type Database = {
           body_battery?: number | null
           created_at?: string | null
           date?: string
+          has_garmin_data?: boolean | null
           health_score?: number | null
           hrv?: number | null
           id?: number
