@@ -7,8 +7,9 @@ interface MetricCardSimpleProps {
   unit?: string;
   average30: string;
   icon: ReactNode;
-  color: 'sleep' | 'heart' | 'stress' | 'steps' | 'activity' | 'training';
+  color: 'sleep' | 'heart' | 'stress' | 'steps' | 'activity' | 'training' | 'hrv' | 'vo2';
   delay?: number;
+  subtitle?: string;
 }
 
 const colorClasses: Record<MetricCardSimpleProps['color'], string> = {
@@ -18,6 +19,8 @@ const colorClasses: Record<MetricCardSimpleProps['color'], string> = {
   steps: 'text-metric-steps',
   activity: 'text-primary',
   training: 'text-metric-battery',
+  hrv: 'text-metric-hrv',
+  vo2: 'text-metric-vo2',
 };
 
 const iconBgClasses: Record<MetricCardSimpleProps['color'], string> = {
@@ -27,6 +30,8 @@ const iconBgClasses: Record<MetricCardSimpleProps['color'], string> = {
   steps: 'bg-metric-steps/15',
   activity: 'bg-primary/15',
   training: 'bg-metric-battery/15',
+  hrv: 'bg-metric-hrv/15',
+  vo2: 'bg-metric-vo2/15',
 };
 
 export function MetricCardSimple({
@@ -37,6 +42,7 @@ export function MetricCardSimple({
   icon,
   color,
   delay = 0,
+  subtitle,
 }: MetricCardSimpleProps) {
   return (
     <div
@@ -68,6 +74,11 @@ export function MetricCardSimple({
         <p className="mt-2 text-xs text-muted-foreground">
           Media 30 días: <span className="font-medium text-foreground/80">{average30}</span>
         </p>
+
+        {/* Optional subtitle */}
+        {subtitle && (
+          <p className="mt-1 text-xs text-muted-foreground/70">{subtitle}</p>
+        )}
       </div>
     </div>
   );

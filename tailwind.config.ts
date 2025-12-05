@@ -67,6 +67,8 @@ export default {
           stress: "hsl(var(--metric-stress))",
           steps: "hsl(var(--metric-steps))",
           battery: "hsl(var(--metric-battery))",
+          hrv: "hsl(var(--metric-hrv))",
+          vo2: "hsl(var(--metric-vo2))",
         },
         health: {
           score: "hsl(var(--health-score))",
