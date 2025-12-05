@@ -47,7 +47,7 @@ export function MetricCardSimple({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl bg-card p-3 card-shadow',
+        'relative overflow-hidden rounded-2xl bg-card p-4 card-shadow',
         'transition-all duration-300 hover:card-shadow-hover hover:-translate-y-0.5',
         'animate-fade-in'
       )}
@@ -57,27 +57,27 @@ export function MetricCardSimple({
 
       <div className="relative z-10">
         {/* Icon + Label row */}
-        <div className="flex items-center gap-2 mb-2">
-          <div className={cn('p-1.5 rounded-lg', iconBgClasses[color])}>
+        <div className="flex items-center gap-2 mb-3">
+          <div className={cn('p-2 rounded-xl', iconBgClasses[color])}>
             <div className={colorClasses[color]}>{icon}</div>
           </div>
-          <p className="text-xs font-medium text-muted-foreground">{label}</p>
+          <p className="text-sm font-medium text-muted-foreground leading-tight">{label}</p>
         </div>
 
         {/* Value */}
-        <div className="flex items-baseline gap-0.5">
-          <span className="text-2xl font-bold text-foreground tracking-tight">{value}</span>
-          {unit && <span className="text-xs font-medium text-muted-foreground">{unit}</span>}
+        <div className="flex items-baseline gap-1">
+          <span className={cn('text-3xl font-bold tracking-tight', colorClasses[color])}>{value}</span>
+          {unit && <span className="text-sm font-medium text-muted-foreground">{unit}</span>}
         </div>
 
         {/* Average 30 days */}
-        <p className="mt-1.5 text-[10px] text-muted-foreground">
-          Media 30d: <span className="font-medium text-foreground/80">{average30}</span>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Media 30d: <span className="font-semibold text-foreground/90">{average30}</span>
         </p>
 
         {/* Optional subtitle */}
         {subtitle && (
-          <p className="mt-0.5 text-[10px] text-muted-foreground/70">{subtitle}</p>
+          <p className="mt-1 text-xs text-muted-foreground/70">{subtitle}</p>
         )}
       </div>
     </div>
