@@ -103,14 +103,24 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Sleep Score */}
             <MetricCardSimple
-              label="Sueño"
+              label="Puntuación sueño"
               value={formatNumber(latest.sleep_score, 0)}
               unit="/100"
               average30={formatNumber(avgSleepScore, 0)}
               icon={<Moon className="w-5 h-5" />}
               color="sleep"
               delay={300}
-              subtitle={latest.sleep_hours !== null ? `Horas de hoy: ${formatNumber(latest.sleep_hours, 1)} h` : undefined}
+            />
+
+            {/* Sleep Hours */}
+            <MetricCardSimple
+              label="Horas de sueño"
+              value={formatNumber(latest.sleep_hours, 1)}
+              unit="h"
+              average30={`${formatNumber(avgSleepHours, 1)} h`}
+              icon={<Moon className="w-5 h-5" />}
+              color="sleep"
+              delay={350}
             />
 
             {/* Resting HR */}
