@@ -19,37 +19,58 @@ export type Database = {
           body_battery: number | null
           created_at: string | null
           date: string
+          health_score: number | null
+          hrv: number | null
           id: number
+          mvpa_minutes: number | null
           raw_data: Json | null
+          raw_garmin: Json | null
           resting_hr: number | null
           sleep_hours: number | null
+          sleep_score: number | null
           steps: number | null
           stress_level: number | null
+          training_load: number | null
           user_id: string | null
+          vo2max: number | null
         }
         Insert: {
           body_battery?: number | null
           created_at?: string | null
           date: string
+          health_score?: number | null
+          hrv?: number | null
           id?: number
+          mvpa_minutes?: number | null
           raw_data?: Json | null
+          raw_garmin?: Json | null
           resting_hr?: number | null
           sleep_hours?: number | null
+          sleep_score?: number | null
           steps?: number | null
           stress_level?: number | null
+          training_load?: number | null
           user_id?: string | null
+          vo2max?: number | null
         }
         Update: {
           body_battery?: number | null
           created_at?: string | null
           date?: string
+          health_score?: number | null
+          hrv?: number | null
           id?: number
+          mvpa_minutes?: number | null
           raw_data?: Json | null
+          raw_garmin?: Json | null
           resting_hr?: number | null
           sleep_hours?: number | null
+          sleep_score?: number | null
           steps?: number | null
           stress_level?: number | null
+          training_load?: number | null
           user_id?: string | null
+          vo2max?: number | null
         }
         Relationships: [
           {

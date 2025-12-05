@@ -5,65 +5,80 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Hardcoded user_id for now
+const USER_ID = '36f40093-9629-442d-8e9f-5a4f00a371c0';
+
 export interface DailyMetrics {
-  id: string;
+  id: number;
+  user_id: string;
   date: string;
-  sleep_hours: number;
-  resting_hr: number;
-  stress_level: number;
-  steps: number;
-  body_battery: number;
-  created_at: string;
+  sleep_hours: number | null;
+  resting_hr: number | null;
+  steps: number | null;
+  stress_level: number | null;
+  sleep_score: number | null;
+  hrv: number | null;
+  vo2max: number | null;
+  mvpa_minutes: number | null;
+  training_load: number | null;
+  health_score: number | null;
+  body_battery: number | null;
+  created_at: string | null;
 }
 
-export async function getLatestMetrics(): Promise<DailyMetrics | null> {
+export async function getLast30DaysMetrics(): Promise<DailyMetrics[]> {
+  const today = new Date();
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+  
+  const dateString = thirtyDaysAgo.toISOString().split('T')[0];
+
   const { data, error } = await supabase
     .from('daily_metrics')
     .select('*')
-    .order('date', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .eq('user_id', USER_ID)
+    .gte('date', dateString)
+    .order('date', { ascending: false });
 
   if (error) {
     console.error('Error fetching metrics:', error);
-    return null;
+    return [];
   }
 
-  return data;
+  return data || [];
 }
 
-// Calculate HealthScore from 0-100 based on normalized metrics
-export function calculateHealthScore(metrics: DailyMetrics): number {
-  // Handle null/undefined values with defaults
-  const sleepHours = metrics.sleep_hours ?? 0;
-  const restingHR = metrics.resting_hr ?? 60;
-  const stressLevel = metrics.stress_level ?? 50;
-  const steps = metrics.steps ?? 0;
-  const bodyBattery = metrics.body_battery ?? 50;
+// Helper function to calculate average of a numeric field, ignoring nulls
+export function calculateAverage(
+  metrics: DailyMetrics[],
+  field: keyof DailyMetrics
+): number | null {
+  const values = metrics
+    .map((m) => m[field])
+    .filter((v): v is number => v !== null && typeof v === 'number');
+  
+  if (values.length === 0) return null;
+  
+  const sum = values.reduce((acc, val) => acc + val, 0);
+  return sum / values.length;
+}
 
-  // Normalize each metric to a 0-100 scale
-  const sleepScore = Math.min(100, (sleepHours / 8) * 100);
-  const heartScore = Math.max(0, Math.min(100, 100 - ((restingHR - 50) / 40) * 100));
-  const stressScore = Math.max(0, 100 - stressLevel);
-  const stepsScore = Math.min(100, (steps / 10000) * 100);
-  const batteryScore = bodyBattery;
+// Format helpers
+export function formatNumber(value: number | null, decimals: number = 0): string {
+  if (value === null || value === undefined) return '—';
+  return value.toFixed(decimals);
+}
 
-  // Weighted average
-  const weights = {
-    sleep: 0.25,
-    heart: 0.2,
-    stress: 0.2,
-    steps: 0.15,
-    battery: 0.2,
-  };
+export function formatInteger(value: number | null): string {
+  if (value === null || value === undefined) return '—';
+  return Math.round(value).toLocaleString('es-ES');
+}
 
-  const score =
-    sleepScore * weights.sleep +
-    heartScore * weights.heart +
-    stressScore * weights.stress +
-    stepsScore * weights.steps +
-    batteryScore * weights.battery;
-
-  const finalScore = Math.round(Math.max(0, Math.min(100, score)));
-  return isNaN(finalScore) ? 0 : finalScore;
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }
