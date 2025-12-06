@@ -40,11 +40,11 @@ const iconBgClasses: Record<MetricCardEnhancedProps['color'], string> = {
   vo2: 'bg-metric-vo2/15',
 };
 
-const qualityColorClasses: Record<MetricCardEnhancedProps['qualityColor'], string> = {
-  excellent: 'text-metric-steps bg-metric-steps/10',
-  good: 'text-primary bg-primary/10',
-  fair: 'text-metric-stress bg-metric-stress/10',
-  poor: 'text-metric-heart bg-metric-heart/10',
+const qualityValueColorClasses: Record<MetricCardEnhancedProps['qualityColor'], string> = {
+  excellent: 'text-metric-steps',
+  good: 'text-primary',
+  fair: 'text-metric-stress',
+  poor: 'text-metric-heart',
 };
 
 const trendColorClasses: Record<TrendDirection, string> = {
@@ -89,21 +89,14 @@ export function MetricCardEnhanced({
           <p className="text-sm font-medium text-muted-foreground leading-tight">{label}</p>
         </div>
 
-        {/* Value with quality */}
+        {/* Value with quality color */}
         <div className="flex-1">
           <div className="flex items-baseline gap-1 flex-wrap">
-            <span className={cn('text-3xl font-bold tracking-tight', colorClasses[color])}>
+            <span className={cn('text-3xl font-bold tracking-tight', qualityValueColorClasses[qualityColor])}>
               {value}
             </span>
-            {unit && <span className="text-sm font-medium text-muted-foreground">{unit}</span>}
-            {unitSuffix && <span className="text-sm font-medium text-muted-foreground">{unitSuffix}</span>}
-          </div>
-          
-          {/* Quality badge */}
-          <div className="mt-2">
-            <span className={cn('inline-block px-2 py-0.5 rounded-full text-xs font-medium', qualityColorClasses[qualityColor])}>
-              {qualityLabel}
-            </span>
+            {unit && <span className={cn('text-sm font-medium', qualityValueColorClasses[qualityColor])}>{unit}</span>}
+            {unitSuffix && <span className={cn('text-sm font-medium', qualityValueColorClasses[qualityColor])}>{unitSuffix}</span>}
           </div>
         </div>
 
