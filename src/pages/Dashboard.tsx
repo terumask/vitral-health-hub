@@ -18,6 +18,7 @@ import {
 import { HealthScoreCardNew } from '@/components/HealthScoreCardNew';
 import { MetricCardEnhanced } from '@/components/MetricCardEnhanced';
 import { LoadingState } from '@/components/LoadingState';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const metricIcons: Record<string, React.ReactNode> = {
   sleep_score: <Moon className="w-5 h-5" />,
@@ -130,9 +131,14 @@ export default function Dashboard() {
     <div className="min-h-screen gradient-hero">
       <div className="container max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
-        <header className="text-center mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">Vitral</h1>
-          <p className="text-muted-foreground mt-1">Tu dashboard de salud personal</p>
+        <header className="mb-8 animate-fade-in">
+          <div className="flex justify-end mb-4">
+            <ThemeToggle />
+          </div>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">Vitral</h1>
+            <p className="text-muted-foreground mt-1">Tu dashboard de salud personal</p>
+          </div>
         </header>
 
         {/* Health Score Card */}
