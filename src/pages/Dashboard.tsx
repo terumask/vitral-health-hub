@@ -1,16 +1,33 @@
-import { useEffect, useState } from 'react';
-import { Moon, Heart, Footprints, Brain, Flame, Dumbbell, Activity, Wind } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { Moon, Heart, Footprints, Brain, Flame, Activity } from 'lucide-react';
 import {
   getLast30DaysMetrics,
   calculateAverage,
-  formatNumber,
-  formatInteger,
-  formatDate,
   DailyMetrics,
 } from '@/lib/supabase';
-import { HealthScoreCard } from '@/components/HealthScoreCard';
-import { MetricCardSimple } from '@/components/MetricCardSimple';
+import {
+  metricConfigs,
+  evaluateMetric,
+  getMetricLabel,
+  calculateTrend,
+  calculateDeviationScore,
+  formatMetricValue,
+  calculate7DayAverage,
+  MetricConfig,
+} from '@/lib/metricUtils';
+import { HealthScoreCardNew } from '@/components/HealthScoreCardNew';
+import { MetricCardEnhanced } from '@/components/MetricCardEnhanced';
 import { LoadingState } from '@/components/LoadingState';
+
+const metricIcons: Record<string, React.ReactNode> = {
+  sleep_score: <Moon className="w-5 h-5" />,
+  sleep_hours: <Moon className="w-5 h-5" />,
+  resting_hr: <Heart className="w-5 h-5" />,
+  hrv: <Activity className="w-5 h-5" />,
+  steps: <Footprints className="w-5 h-5" />,
+  stress_level: <Brain className="w-5 h-5" />,
+  mvpa_minutes: <Flame className="w-5 h-5" />,
+};
 
 export default function Dashboard() {
   const [metrics30, setMetrics30] = useState<DailyMetrics[]>([]);
@@ -33,6 +50,47 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
+  // Memoized calculations
+  const { latest, avg7dHealthScore, avg30dHealthScore, sortedMetrics } = useMemo(() => {
+    if (metrics30.length === 0) {
+      return { latest: null, avg7dHealthScore: null, avg30dHealthScore: null, sortedMetrics: [] };
+    }
+
+    const latestData = metrics30[0];
+    const avg7d = calculate7DayAverage(metrics30, 'health_score');
+    const avg30d = calculateAverage(metrics30, 'health_score');
+
+    // Calculate metrics with their deviation scores for sorting
+    const metricsWithScores = metricConfigs.map((config) => {
+      const todayValue = latestData[config.key] as number | null;
+      const avg30Value = calculateAverage(metrics30, config.key);
+      const deviationScore = calculateDeviationScore(todayValue, config);
+      const evaluation = evaluateMetric(todayValue, config);
+      const qualityLabel = getMetricLabel(todayValue, config);
+      const trend = calculateTrend(todayValue, avg30Value, config.higherIsBetter);
+
+      return {
+        config,
+        todayValue,
+        avg30Value,
+        deviationScore,
+        evaluation,
+        qualityLabel,
+        trend,
+      };
+    });
+
+    // Sort by deviation score (worst first)
+    const sorted = metricsWithScores.sort((a, b) => b.deviationScore - a.deviationScore);
+
+    return {
+      latest: latestData,
+      avg7dHealthScore: avg7d,
+      avg30dHealthScore: avg30d,
+      sortedMetrics: sorted,
+    };
+  }, [metrics30]);
+
   if (loading) {
     return (
       <div className="min-h-screen gradient-hero">
@@ -49,7 +107,7 @@ export default function Dashboard() {
     );
   }
 
-  if (metrics30.length === 0) {
+  if (!latest) {
     return (
       <div className="min-h-screen gradient-hero flex items-center justify-center">
         <div className="text-center">
@@ -60,19 +118,13 @@ export default function Dashboard() {
     );
   }
 
-  const latest = metrics30[0];
-
-  // Calculate averages
-  const avgHealthScore = calculateAverage(metrics30, 'health_score');
-  const avgSleepScore = calculateAverage(metrics30, 'sleep_score');
-  const avgSleepHours = calculateAverage(metrics30, 'sleep_hours');
-  const avgRestingHr = calculateAverage(metrics30, 'resting_hr');
-  const avgSteps = calculateAverage(metrics30, 'steps');
-  const avgStress = calculateAverage(metrics30, 'stress_level');
-  const avgMvpa = calculateAverage(metrics30, 'mvpa_minutes');
-  const avgTrainingLoad = calculateAverage(metrics30, 'training_load');
-  const avgHrv = calculateAverage(metrics30, 'hrv');
-  const avgVo2max = calculateAverage(metrics30, 'vo2max');
+  const formatAvg30 = (value: number | null, config: MetricConfig): string => {
+    if (value === null) return '—';
+    if (config.key === 'steps') {
+      return Math.round(value).toLocaleString('es-ES');
+    }
+    return value.toFixed(config.decimals ?? 0) + (config.unitSuffix ? ` ${config.unitSuffix}` : '');
+  };
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -85,10 +137,10 @@ export default function Dashboard() {
 
         {/* Health Score Card */}
         <section className="mb-10">
-          <HealthScoreCard
-            score={latest.health_score}
-            average30={avgHealthScore}
-            date={formatDate(latest.date)}
+          <HealthScoreCardNew
+            average7d={avg7dHealthScore}
+            todayScore={latest.health_score}
+            average30d={avg30dHealthScore}
           />
         </section>
 
@@ -101,118 +153,28 @@ export default function Dashboard() {
             Métricas del día
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {/* Sleep Score */}
-            <MetricCardSimple
-              label="Puntuación sueño"
-              value={formatNumber(latest.sleep_score, 0)}
-              unit="/100"
-              average30={formatNumber(avgSleepScore, 0)}
-              icon={<Moon className="w-5 h-5" />}
-              color="sleep"
-              delay={300}
-            />
-
-            {/* Sleep Hours */}
-            <MetricCardSimple
-              label="Horas de sueño"
-              value={formatNumber(latest.sleep_hours, 1)}
-              unit="h"
-              average30={`${formatNumber(avgSleepHours, 1)} h`}
-              icon={<Moon className="w-5 h-5" />}
-              color="sleep"
-              delay={350}
-            />
-
-            {/* Resting HR */}
-            <MetricCardSimple
-              label="Ritmo en reposo"
-              value={formatNumber(latest.resting_hr, 0)}
-              unit="bpm"
-              average30={`${formatNumber(avgRestingHr, 0)} bpm`}
-              icon={<Heart className="w-5 h-5" />}
-              color="heart"
-              delay={400}
-            />
-
-            {/* Steps */}
-            <MetricCardSimple
-              label="Pasos"
-              value={formatInteger(latest.steps)}
-              average30={formatInteger(avgSteps)}
-              icon={<Footprints className="w-5 h-5" />}
-              color="steps"
-              delay={500}
-            />
-
-            {/* Stress Level */}
-            <MetricCardSimple
-              label="Estrés"
-              value={formatNumber(latest.stress_level, 0)}
-              unit="/100"
-              average30={formatNumber(avgStress, 0)}
-              icon={<Brain className="w-5 h-5" />}
-              color="stress"
-              delay={600}
-            />
-
-            {/* MVPA Minutes */}
-            <MetricCardSimple
-              label="Actividad"
-              value={formatNumber(latest.mvpa_minutes, 0)}
-              unit="min"
-              average30={`${formatNumber(avgMvpa, 0)} min`}
-              icon={<Flame className="w-5 h-5" />}
-              color="activity"
-              delay={700}
-            />
-
-            {/* Training Load */}
-            <MetricCardSimple
-              label="Carga entrenamiento"
-              value={formatNumber(latest.training_load, 1)}
-              average30={formatNumber(avgTrainingLoad, 1)}
-              icon={<Dumbbell className="w-5 h-5" />}
-              color="training"
-              delay={800}
-            />
-          </div>
-        </section>
-
-        {/* Advanced Metrics Section */}
-        <section className="mb-10">
-          <h2
-            className="text-lg font-semibold text-foreground mb-4 animate-fade-in"
-            style={{ animationDelay: '850ms' }}
-          >
-            Métricas avanzadas
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            {/* HRV */}
-            <MetricCardSimple
-              label="Variabilidad cardíaca (HRV)"
-              value={formatNumber(latest.hrv, 0)}
-              unit="ms"
-              average30={`${formatNumber(avgHrv, 0)} ms`}
-              icon={<Activity className="w-5 h-5" />}
-              color="hrv"
-              delay={900}
-            />
-
-            {/* VO2 Max */}
-            <MetricCardSimple
-              label="VO₂ máx"
-              value={formatNumber(latest.vo2max, 1)}
-              unit="ml/kg/min"
-              average30={`${formatNumber(avgVo2max, 1)} ml/kg/min`}
-              icon={<Wind className="w-5 h-5" />}
-              color="vo2"
-              delay={1000}
-            />
+            {sortedMetrics.map((metric, index) => (
+              <MetricCardEnhanced
+                key={metric.config.key}
+                label={metric.config.label}
+                value={formatMetricValue(metric.todayValue, metric.config)}
+                unit={metric.config.unit}
+                unitSuffix={metric.config.unitSuffix}
+                qualityLabel={metric.qualityLabel}
+                qualityColor={metric.evaluation.color}
+                average30={formatAvg30(metric.avg30Value, metric.config)}
+                trendDirection={metric.trend.direction}
+                trendLabel={metric.trend.label}
+                icon={metricIcons[metric.config.key]}
+                color={metric.config.color}
+                delay={300 + index * 50}
+              />
+            ))}
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="mt-16 text-center animate-fade-in" style={{ animationDelay: '1100ms' }}>
+        <footer className="mt-16 text-center animate-fade-in" style={{ animationDelay: '700ms' }}>
           <p className="text-xs text-muted-foreground">
             Datos sincronizados desde tu dispositivo wearable
           </p>
