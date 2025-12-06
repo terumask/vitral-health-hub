@@ -89,14 +89,14 @@ export function MetricCardEnhanced({
           <p className="text-sm font-medium text-muted-foreground leading-tight">{label}</p>
         </div>
 
-        {/* Value with quality color */}
+        {/* Value */}
         <div className="flex-1">
           <div className="flex items-baseline gap-1 flex-wrap">
-            <span className={cn('text-3xl font-bold tracking-tight', qualityValueColorClasses[qualityColor])}>
+            <span className="text-3xl font-bold tracking-tight text-foreground">
               {value}
             </span>
-            {unit && <span className={cn('text-sm font-medium', qualityValueColorClasses[qualityColor])}>{unit}</span>}
-            {unitSuffix && <span className={cn('text-sm font-medium', qualityValueColorClasses[qualityColor])}>{unitSuffix}</span>}
+            {unit && <span className="text-sm font-medium text-foreground">{unit}</span>}
+            {unitSuffix && <span className="text-sm font-medium text-foreground">{unitSuffix}</span>}
           </div>
         </div>
 
